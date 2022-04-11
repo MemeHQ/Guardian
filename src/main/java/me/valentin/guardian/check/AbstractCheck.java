@@ -5,10 +5,6 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.evilblock.stark.Stark;
-import net.evilblock.stark.core.StarkCore;
-import net.evilblock.stark.core.rank.Rank;
-import net.evilblock.stark.profile.BukkitProfile;
 import me.valentin.guardian.Guardian;
 import me.valentin.guardian.player.PlayerData;
 import me.valentin.guardian.player.tracker.ActionTracker;
@@ -46,11 +42,9 @@ public abstract class AbstractCheck<T> implements ICheck<T> {
 
 
 	protected void flag(Player player, String alert) {
-		BukkitProfile profile = Stark.instance.core.getProfileHandler().getByUUID(player.getUniqueId());
-		Rank rank = profile.getRank();
 
-		String theAlert = ChatColor.GRAY + "[" + ChatColor.DARK_RED + "Phantom" + ChatColor.GRAY + "] " + ChatColor.RED + profile.getPlayerListName() + ChatColor.GRAY + " flagged " + ChatColor.RED + this.name +
-				ChatColor.GRAY + " " + alert + ChatColor.GRAY + " [" + ChatColor.RED + "Ping: " + ChatColor.GRAY + ((CraftPlayer) player).getHandle().ping + "]" ;
+		String theAlert = ChatColor.YELLOW + "[Guardian]" + ChatColor.RED + player.getName() + ChatColor.YELLOW + " flagged " + ChatColor.RED + this.name +
+				ChatColor.YELLOW + " " + alert + ChatColor.YELLOW + " [" + ChatColor.YELLOW + "Ping: " + ChatColor.YELLOW + ((CraftPlayer) player).getHandle().ping + "]" ;
 
 		this.plugin.getAlertsManager().sendMessage(theAlert);
 
@@ -68,15 +62,17 @@ public abstract class AbstractCheck<T> implements ICheck<T> {
 	protected void ban(Player player) {
 		if (playerData.isBanning())
 			return;
-		if (!player.hasPermission("ac.bypass")) {
+		if (!player.hasPermission("guardian.bypass")) {
 
 			playerData.setBanning(true);
 			this.plugin.getServer().getScheduler().runTask(this.plugin, () -> {
-				this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), "ban -s " + player.getName() + " Cheating");
+				this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), "ban -s " + player.getName() + " Cheating"); //to be decided
 
-				this.plugin.getServer().broadcastMessage(ChatColor.RED + " " + ChatColor.RED);
-				this.plugin.getServer().broadcastMessage(ChatColor.DARK_RED + "Phantom" + ChatColor.RED + " removed " + ChatColor.DARK_RED + player.getName() + ChatColor.RED + " for cheating!");
-				this.plugin.getServer().broadcastMessage(ChatColor.RED + " " + ChatColor.RED);
+				this.plugin.getServer().broadcastMessage(ChatColor.RED.toString() + ChatColor.STRIKETHROUGH + "----------------------------------------------------");
+				this.plugin.getServer().broadcastMessage(ChatColor.RED + "Guardian" + " removed " + ChatColor.YELLOW + player.getName() + ChatColor.RED + " from the network.");
+				this.plugin.getServer().broadcastMessage(ChatColor.RED + "Reason: " + ChatColor.YELLOW + "Unfair Advantage");
+				this.plugin.getServer().broadcastMessage(ChatColor.RED.toString() + ChatColor.STRIKETHROUGH + "----------------------------------------------------");
+
 			});
 		} else {}
 
