@@ -1,0 +1,5 @@
+main: me.valentin.guardian.Guardian
+name: Guardian
+author: vaaaleh
+description: Guardian is always watching you.
+version: '1.0'
