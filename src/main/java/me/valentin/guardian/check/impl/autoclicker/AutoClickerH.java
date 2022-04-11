@@ -54,9 +54,9 @@ public class AutoClickerH extends PacketCheck {
 
         double kurtosis = new Kurtosis().evaluate(flyingPackets.stream().mapToDouble(Number::doubleValue).toArray());
 
-        //if (kurtosis < 1 && kurtosis > 0) {
-            //this.flag(playerData.getPlayer(), String.format("kurt=%s", kurtosis));
-       // }
+        if (kurtosis < 1 && kurtosis > 0) {
+            this.flag(playerData.getPlayer(), String.format("kurt=%s", kurtosis));
+       }
     }
 
     private double getRangeDifference(Collection<? extends Number> numbers) {
