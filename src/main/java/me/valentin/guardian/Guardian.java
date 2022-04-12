@@ -1,49 +1,87 @@
 package me.valentin.guardian;
 
-import java.util.Arrays;
-import java.util.Optional;
 import lombok.Getter;
-import me.valentin.guardian.listener.PlayerListener;
-import me.valentin.guardian.alerts.AlertsManager;
-import me.valentin.guardian.commands.AlertsCommand;
-import me.valentin.guardian.player.PlayerManager;
-import net.minecraft.server.v1_7_R4.MinecraftServer;
-import org.bukkit.command.Command;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.GuardianEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Map;
+
 @Getter
-public class Guardian extends JavaPlugin {
+public class Guardian extends JavaPlugin implements Listener {
 
-	private static Optional<Guardian> instance;
-
-	private PlayerManager playerManager;
-	private AlertsManager alertsManager;
 
 	@Override
 	public void onEnable() {
-		Guardian.instance = Optional.of(this);
-
-		this.playerManager = new PlayerManager();
-		this.alertsManager = new AlertsManager();
-
-		Arrays.asList(
-				new PlayerListener()
-		).forEach(l -> this.getServer().getPluginManager().registerEvents(l, this));
-
-		Arrays.asList(
-				new AlertsCommand()
-		).forEach(this::registerCommand);
+		Bukkit.getPluginManager().registerEvents(this, this);
 	}
 
-	public static Guardian getInstance() {
-		return Guardian.instance.orElseThrow(() -> new IllegalArgumentException("Guardian instance is null"));
+	@EventHandler
+	public void onGuardianEvent(GuardianEvent event) {
+
+		String data = getData(event.getData());
+		String displayName = getNonScuffedAlertName(event.getCheat()) + " " + event.getModule();
+
+		for (Player players : Bukkit.getOnlinePlayers()) {
+			if (players.hasPermission("guardian.alert")) {
+				players.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[&c!&7] &e" + event.getPlayer().getName()) + " &fhas been detected using " + displayName);
+			}
+		}
+
 	}
 
-	private void registerCommand(Command cmd) {
-		this.registerCommand(cmd, this.getName());
+	private String getNonScuffedAlertName(GuardianEvent.Cheat cheat) {
+		if (cheat == GuardianEvent.Cheat.SPEED_HACKS) {
+			return "Speed";
+		} else if (cheat == GuardianEvent.Cheat.FLY_HACKS) {
+			return "Flight";
+		} else if (cheat == GuardianEvent.Cheat.AUTO_CLICKER) {
+			return "Auto Clicker";
+		} else if (cheat == GuardianEvent.Cheat.KILL_AURA) {
+			return "Kill Aura";
+		} else if (cheat == GuardianEvent.Cheat.HOVER) {
+			return "Hover";
+		} else if (cheat == GuardianEvent.Cheat.CRITICALS) {
+			return "Criticals";
+		} else if (cheat == GuardianEvent.Cheat.NO_FALL) {
+			return "No Fall";
+		} else if (cheat == GuardianEvent.Cheat.TIMER) {
+			return "Timer";
+		} else if (cheat == GuardianEvent.Cheat.PHASE) {
+			return "Phase";
+		} else if (cheat == GuardianEvent.Cheat.FAST_USE) {
+			return "Fast Use";
+		} else if (cheat == GuardianEvent.Cheat.REGENERATION) {
+			return "Regen";
+		} else if (cheat == GuardianEvent.Cheat.CLIENT_MODIFICATIONS) {
+			return "Client Modifications";
+		} else if (cheat == GuardianEvent.Cheat.REACH) {
+			return "Reach";
+		} else if (cheat == GuardianEvent.Cheat.GENERAL) {
+			return "General";
+		} else if (cheat == GuardianEvent.Cheat.DEBUG) {
+			return "Debug";
+		} else {
+			return "Unknown";
+		}
 	}
 
-	public void registerCommand(Command cmd, String fallbackPrefix) {
-		MinecraftServer.getServer().server.getCommandMap().register(cmd.getName(), fallbackPrefix, cmd);
+
+
+
+	private String getData(Map<String, Object> data) {
+		StringBuffer sb = new StringBuffer();
+		for (Map.Entry<String, Object> entry : data.entrySet()) {
+			if(sb.length() != 0) {
+				sb.append(", ");
+			}
+			sb.append(entry.getKey()).append(" ").append(entry.getValue());
+		}
+		return sb.toString();
 	}
 }
+
